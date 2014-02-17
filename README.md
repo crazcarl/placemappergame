@@ -9,3 +9,7 @@ If you get it right, it adds a checkmark and updates the location to a new one. 
 
 
 Right now it's just the bars of Madison. May potentially update this to other things/cities depending on interest.
+
+
+Currently hosted at:
+http://placemapper.appspot.com
