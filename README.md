@@ -12,4 +12,4 @@ Right now it's just the bars of Madison. May potentially update this to other th
 
 
 Currently hosted at:
-http://placemapper.appspot.com
+http://placemappergame.appspot.com
