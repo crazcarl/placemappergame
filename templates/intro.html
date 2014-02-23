@@ -13,10 +13,10 @@
     <script type="text/javascript"
       src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDhcFl3Kw3amhvtaY9fzr9BiyUu6YPfqc0&sensor=false&libraries=geometry">
     </script>
-    <script>
-		var markers = [];
-		var map;
-      function initialize() {
+	<script src="/js/maps.js"></script>
+	<script> var markers = [];
+var map;
+function initialize() {
 
         var mapOptions = {
           center: new google.maps.LatLng(43.074844,-89.384265),
@@ -38,15 +38,7 @@
         map = new google.maps.Map(document.getElementById("map-canvas"),
             mapOptions);
 		map.setOptions({styles:styles});
-			
-	  //Pre-Add a marker
-	  var myLatlng = new google.maps.LatLng(43.076301,-89.376575);
 		
-	  //var marker = new google.maps.Marker({
-		//  position: myLatlng,
-		//  map: map,
-		//  title: 'Hello World!'
-	  //});
 	  
 		//add click listener
 		google.maps.event.addListener(map, 'click', function(event) {
@@ -77,86 +69,8 @@
 	  markers = []
 	}
 	
-
-	  var b2long = "";
-	  var b2lat = "";
       google.maps.event.addDomListener(window, 'load', initialize);
-
-	  $(document).ready(function() {
-		//grab list of bars here and set up first one.
-		var barslist = {}
-		var barlist = {}
-		$.ajax({
-			type: "GET",
-			url: "/getbarlist",
-			data: barlist,
-			dataType: 'json',
-			async: false,
-			success: function(barlist) {
-				var newbar = barlist['bars'].pop()
-				$('#barname').html(newbar);
-				barslist = barlist
-			}
-		 });
-		$('#submit').click(function(){
-			 //1. Get name of bar and pass as json array to server
-			 var barname = {"barname":$("#barname").text()};
-			 //2. Get lat and long of bar for comparison
-			 var bar2 = $.ajax({
-				type: "GET",
-				url: "/getbarlatlong",
-				data: barname,
-				dataType: 'json',
-				async: false
-			 });
-		 	 bar2.success(function(data) {
-				b2long = data.long;
-				b2lat = data.lat;
-			 });
-			 // Create gmaps position object
-			 var bar= new google.maps.LatLng(b2lat,b2long);
-			 // Grab position of marker
-			 var location = markers[0].getPosition();
-			 //compare distance between marker and specified bar
-			 var distance=google.maps.geometry.spherical.computeDistanceBetween(bar, location);
-			 //Leaving this to remember how to log to console:
-			 console.log(distance)
-			 var data={"distance":distance};
-			 // This creates the AJAX connection
-			 $.ajax({
-				 type: "POST",
-				 url: "/",
-				 data: data,
-				 dataType: 'json',
-				 success: function(data) {
-					 if (parseInt(data.distance) < 100) {
-						$('#distance').html("<strong>You got it!</strong>")
-					 }
-					 else {
-						var output = "<strong>You were off by " + data.distance + " meters. Try again!</strong>"
-						$('#distance').html(output);
-					 }
-					 //$('#distance').html(data.distance);
-					 if (data.correct == "True") {
-						var correctDiv = document.getElementById('correct');
-						var spanTag = document.createElement('span');
-						spanTag.setAttribute('class','glyphicon glyphicon-ok');
-						correctDiv.appendChild(spanTag);
-						if (barslist['bars'].length > 0) {
-							$('#barname').html(barslist['bars'].pop());
-						}
-						else {
-								window.location.href = "/gameover";
-						}
-					 }
-				 }
-			 });
-			});
-		});		
-	  
-	  
-	  
-    </script>
+  </script>
   </head>
   <body>
    <div id="header" class="navbar-default navbar-collapse collapse navbar-responsive-collapse">
