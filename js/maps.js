@@ -50,8 +50,15 @@
 						$('#distance').html("<strong>You got it!</strong>")
 					 }
 					 else {
-						var output = "<strong>You were off by " + data.distance + " meters. Try again!</strong>"
+						var output = "<strong>You were off by " + data.distance + " meters.</strong>"
 						$('#distance').html(output);
+						
+						// TODO: rename this and move to own function (DRY)
+						var correctDiv = document.getElementById('correct');
+						var spanTag = document.createElement('span');
+						spanTag.setAttribute('class','glyphicon glyphicon-remove');
+						correctDiv.appendChild(spanTag);
+						$('#barname').html(barslist['bars'].pop());
 					 }
 					 if (data.correct == "True") {
 						var correctDiv = document.getElementById('correct');
