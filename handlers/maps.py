@@ -11,19 +11,38 @@ from random import randint
 class MapHandler(AppHandler):
 	def get(self):
 		self.render("intro.html")
-	
+		self.response.headers.add_header('Set-Cookie', '%s=%s' % ('score',0))
 	# AJAX helper function for returning messages of pass/fail.
 	# kind of useless right now. May eliminate or add more useful features.
 	def post(self):
 		distance=int(float(self.request.get('distance')))
 		array={'distance':distance}
+		# Get Cookie Val
+		cookie_val = self.request.cookies.get('score')
+		if not cookie_val:
+			cookie_val = 0
+		# Validate it
+		if not self.valid_cookie(cookie_val):
+			pass
+		# Check user answer
 		if not distance or distance > 100:
 			array['correct'] = "False"
 		else:
 			array['correct'] = "True"
+			cookie_val = int(cookie_val) + 1
+		array['score'] = str(cookie_val)
+		# Set new val
+		self.update_cookie(cookie_val)
 		self.response.headers['Content-Type'] = 'application/json'
 		self.response.out.write(json.dumps(array))
-
+		
+	def valid_cookie(self,cookie):
+		return 1
+	
+	def update_cookie(self,cookie_val):
+		self.response.headers.add_header('Set-Cookie', '%s=%s' % ('score',str(cookie_val)))
+		pass
+		
 	# AJAX helper function to return the lat/long for a bar based on the name
 	# This is used when computing the distance between the bar dn the marker placed
 	# by the user.

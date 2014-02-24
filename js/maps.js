@@ -58,7 +58,13 @@
 						var spanTag = document.createElement('span');
 						spanTag.setAttribute('class','glyphicon glyphicon-remove');
 						correctDiv.appendChild(spanTag);
-						$('#barname').html(barslist['bars'].pop());
+						if (barslist['bars'].length > 0) {
+							$('#barname').html(barslist['bars'].pop());
+						}
+						else {
+								window.location.href = "/gameover";
+						}
+						$('#score').html("Score: " + data['score']);
 					 }
 					 if (data.correct == "True") {
 						var correctDiv = document.getElementById('correct');
@@ -71,6 +77,7 @@
 						else {
 								window.location.href = "/gameover";
 						}
+						$('#score').html("Score: " + data['score']);
 					 }
 				 }
 			 });
