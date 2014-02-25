@@ -11,36 +11,41 @@ from random import randint
 class MapHandler(AppHandler):
 	def get(self):
 		self.render("intro.html")
-		self.response.headers.add_header('Set-Cookie', '%s=%s' % ('score',0))
+		self.response.headers.add_header('Set-Cookie', '%s=%s' % ('correct',0))
+		self.response.headers.add_header('Set-Cookie', '%s=%s' % ('total',0))
 	# AJAX helper function for returning messages of pass/fail.
 	# kind of useless right now. May eliminate or add more useful features.
 	def post(self):
 		distance=int(float(self.request.get('distance')))
 		array={'distance':distance}
 		# Get Cookie Val
-		cookie_val = self.request.cookies.get('score')
-		if not cookie_val:
-			cookie_val = 0
+		correct = self.request.cookies.get('correct')
+		total = self.request.cookies.get('total')
+		if not correct or not total:
+			correct = 0
+			total = 0
 		# Validate it
-		if not self.valid_cookie(cookie_val):
+		if not self.valid_cookie(correct,total):
 			pass
 		# Check user answer
 		if not distance or distance > 100:
 			array['correct'] = "False"
 		else:
 			array['correct'] = "True"
-			cookie_val = int(cookie_val) + 1
-		array['score'] = str(cookie_val)
+			correct = int(correct) + 1
+		total = int(total) + 1
+		array['score'] = [str(correct),str(total)]
 		# Set new val
-		self.update_cookie(cookie_val)
+		self.update_cookie(correct,total)
 		self.response.headers['Content-Type'] = 'application/json'
 		self.response.out.write(json.dumps(array))
 		
-	def valid_cookie(self,cookie):
+	def valid_cookie(self,correct,total):
 		return 1
 	
-	def update_cookie(self,cookie_val):
-		self.response.headers.add_header('Set-Cookie', '%s=%s' % ('score',str(cookie_val)))
+	def update_cookie(self,correct,total):
+		self.response.headers.add_header('Set-Cookie', '%s=%s' % ('correct',str(correct)))
+		self.response.headers.add_header('Set-Cookie', '%s=%s' % ('total',str(total)))
 		pass
 		
 	# AJAX helper function to return the lat/long for a bar based on the name

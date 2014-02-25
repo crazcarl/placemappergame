@@ -1,10 +1,9 @@
 	  var b2long = "";
 	  var b2lat = "";
-
+	  var barslist = {}
+	  var barlist = {}
 	  $(document).ready(function() {
 		//grab list of bars here and set up first one.
-		var barslist = {}
-		var barlist = {}
 		$.ajax({
 			type: "GET",
 			url: "/getbarlist",
@@ -46,41 +45,31 @@
 				 data: data,
 				 dataType: 'json',
 				 success: function(data) {
-					 if (parseInt(data.distance) < 100) {
-						$('#distance').html("<strong>You got it!</strong>")
-					 }
-					 else {
-						var output = "<strong>You were off by " + data.distance + " meters.</strong>"
-						$('#distance').html(output);
-						
-						// TODO: rename this and move to own function (DRY)
-						var correctDiv = document.getElementById('correct');
-						var spanTag = document.createElement('span');
-						spanTag.setAttribute('class','glyphicon glyphicon-remove');
-						correctDiv.appendChild(spanTag);
-						if (barslist['bars'].length > 0) {
-							$('#barname').html(barslist['bars'].pop());
-						}
-						else {
-								window.location.href = "/gameover";
-						}
-						$('#score').html("Score: " + data['score']);
-					 }
-					 if (data.correct == "True") {
-						var correctDiv = document.getElementById('correct');
-						var spanTag = document.createElement('span');
-						spanTag.setAttribute('class','glyphicon glyphicon-ok');
-						correctDiv.appendChild(spanTag);
-						if (barslist['bars'].length > 0) {
-							$('#barname').html(barslist['bars'].pop());
-						}
-						else {
-								window.location.href = "/gameover";
-						}
-						$('#score').html("Score: " + data['score']);
-					 }
+					evaluateResult(data)
 				 }
 			 });
 			});
-		});		
+		});
+		
+		function evaluateResult(data) {
+			var correctDiv = document.getElementById('correct');
+			var spanTag = document.createElement('span');
+			if (data.correct == "True") {
+			spanTag.setAttribute('class','glyphicon glyphicon-ok');
+			$('#distance').html("<strong>You got it!</strong>")
+			}
+			else {
+				spanTag.setAttribute('class','glyphicon glyphicon-remove');
+				var output = "<strong>You were off by " + data.distance + " meters.</strong>"
+				$('#distance').html(output);
+			};
+			correctDiv.appendChild(spanTag);
+			if (barslist['bars'].length > 0) {
+				$('#barname').html(barslist['bars'].pop());
+			}
+			else {
+					window.location.href = "/gameover";
+			};
+			$('#score').html("Score: " + data['score'][0] + " / " + data['score'][1]);
+		}
 	
