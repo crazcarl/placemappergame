@@ -37,7 +37,7 @@
 			 var location = markers[0].getPosition();
 			 //compare distance between marker and specified bar
 			 var distance=google.maps.geometry.spherical.computeDistanceBetween(bar, location);
-			 var data={"distance":distance};
+			 var data={"distance":distance,"barname":$("#barname").text()};
 			 // This creates the AJAX connection
 			 $.ajax({
 				 type: "POST",
@@ -55,11 +55,13 @@
 			var correctDiv = document.getElementById('correct');
 			var spanTag = document.createElement('span');
 			if (data.correct == "True") {
-			spanTag.setAttribute('class','glyphicon glyphicon-ok');
-			$('#distance').html("<strong>You got it!</strong>")
+				spanTag.setAttribute('class','glyphicon glyphicon-ok');
+				spanTag.setAttribute('title',$("#barname").text());
+				$('#distance').html("<strong>You got it!</strong>")
 			}
 			else {
 				spanTag.setAttribute('class','glyphicon glyphicon-remove');
+				spanTag.setAttribute('title',$("#barname").text());
 				var output = "<strong>You were off by " + data.distance + " meters.</strong>"
 				$('#distance').html(output);
 			};

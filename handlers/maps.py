@@ -11,42 +11,55 @@ from random import randint
 class MapHandler(AppHandler):
 	def get(self):
 		self.render("intro.html")
-		self.response.headers.add_header('Set-Cookie', '%s=%s' % ('correct',0))
+		self.response.headers.add_header('Set-Cookie', '%s=%s' % ('score',0))
 		self.response.headers.add_header('Set-Cookie', '%s=%s' % ('total',0))
+		self.response.headers.add_header('Set-Cookie', '%s=;' % ('correct_list'))
+		self.response.headers.add_header('Set-Cookie', '%s=;' % ('incorrect_list'))
 	# AJAX helper function for returning messages of pass/fail.
 	# kind of useless right now. May eliminate or add more useful features.
 	def post(self):
-		distance=int(float(self.request.get('distance')))
+		distance = int(float(self.request.get('distance')))
+		barname = self.request.get('barname')
 		array={'distance':distance}
 		# Get Cookie Val
-		correct = self.request.cookies.get('correct')
+		score = self.request.cookies.get('score')
 		total = self.request.cookies.get('total')
-		if not correct or not total:
-			correct = 0
+		if not score or not total:
+			score = 0
 			total = 0
 		# Validate it
-		if not self.valid_cookie(correct,total):
+		if not self.valid_cookie(score,total):
 			pass
 		# Check user answer
 		if not distance or distance > 100:
 			array['correct'] = "False"
 		else:
 			array['correct'] = "True"
-			correct = int(correct) + 1
+			score = int(score) + 1
 		total = int(total) + 1
-		array['score'] = [str(correct),str(total)]
+		array['score'] = [str(score),str(total)]
 		# Set new val
-		self.update_cookie(correct,total)
+		self.update_cookie(score,total,barname,array['correct'])
 		self.response.headers['Content-Type'] = 'application/json'
 		self.response.out.write(json.dumps(array))
 		
-	def valid_cookie(self,correct,total):
+	def valid_cookie(self,score,total):
 		return 1
 	
-	def update_cookie(self,correct,total):
-		self.response.headers.add_header('Set-Cookie', '%s=%s' % ('correct',str(correct)))
+	def update_cookie(self,score,total,barname,correct):
+		self.response.headers.add_header('Set-Cookie', '%s=%s' % ('score',str(score)))
 		self.response.headers.add_header('Set-Cookie', '%s=%s' % ('total',str(total)))
-		pass
+		barname = "".join(barname.split())
+		if correct == 'True':
+			correct_list = str(self.request.cookies.get('correct_list'))
+			correct_list = correct_list + "-" + barname + "-"
+			correct_list = correct_list.strip("-")
+			self.response.headers.add_header('Set-Cookie', '%s=%s' % ('correct_list',str(correct_list)))
+		else:
+			incorrect_list = str(self.request.cookies.get('incorrect_list'))
+			incorrect_list = incorrect_list + "," + barname + ","
+			incorrect_list = incorrect_list.strip(",")
+			self.response.headers.add_header('Set-Cookie', '%s=%s' % ('incorrect_list',str(incorrect_list)))
 		
 	# AJAX helper function to return the lat/long for a bar based on the name
 	# This is used when computing the distance between the bar dn the marker placed
