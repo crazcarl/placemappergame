@@ -33,9 +33,11 @@ class MapHandler(AppHandler):
 		# Check user answer
 		if not distance or distance > 100:
 			array['correct'] = "False"
+			#TODO: log stats here
 		else:
 			array['correct'] = "True"
 			score = int(score) + 1
+			#TODO: and log stats here
 		total = int(total) + 1
 		array['score'] = [str(score),str(total)]
 		# Set new val
@@ -71,7 +73,7 @@ class MapHandler(AppHandler):
 		if not bar:
 			bar = Place.all().filter("name =", name).get()
 			if bar:
-				memcache.set(bar.name,bar)
+				memcache.set(name,bar)
 		if not bar:
 			return None
 		lat = bar.location.lat
@@ -136,6 +138,8 @@ class NewPointHandler(AppHandler):
 		output = {"ok":"yeah"}
 		self.response.out.write(json.dumps(output))
 
+# Helper function to return all bars currently populated.
+# Used to then populate memcache
 def getAllBars(self):
 	allbars = Place.all().fetch(1000)
 	allbars = list(allbars)
