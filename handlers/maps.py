@@ -49,7 +49,7 @@ class MapHandler(AppHandler):
 	def update_cookie(self,score,total,barname,correct):
 		self.response.headers.add_header('Set-Cookie', '%s=%s' % ('score',str(score)))
 		self.response.headers.add_header('Set-Cookie', '%s=%s' % ('total',str(total)))
-		barname = "".join(barname.split())
+		barname = "_".join(barname.split())
 		if correct == 'True':
 			correct_list = str(self.request.cookies.get('correct_list'))
 			correct_list = correct_list + "-" + barname + "-"
@@ -57,8 +57,8 @@ class MapHandler(AppHandler):
 			self.response.headers.add_header('Set-Cookie', '%s=%s' % ('correct_list',str(correct_list)))
 		else:
 			incorrect_list = str(self.request.cookies.get('incorrect_list'))
-			incorrect_list = incorrect_list + "," + barname + ","
-			incorrect_list = incorrect_list.strip(",")
+			incorrect_list = incorrect_list + "-" + barname + "-"
+			incorrect_list = incorrect_list.strip("-")
 			self.response.headers.add_header('Set-Cookie', '%s=%s' % ('incorrect_list',str(incorrect_list)))
 		
 	# AJAX helper function to return the lat/long for a bar based on the name
@@ -84,8 +84,7 @@ class MapHandler(AppHandler):
 	def getBarList(self):
 		places = memcache.get("barlist")
 		if not places:
-			places = Place.all().fetch(1000)
-			places = list(places)
+			places = getAllBars(self)
 			if places:
 				memcache.set("barlist",places)
 		if not places:
@@ -96,14 +95,19 @@ class MapHandler(AppHandler):
 		while places:
 			which = randint(0,len(places)-1)
 			place = places.pop(which)
-			names.append(place.name)
+			names.append(place)
 		array = {"bars":names}
 		self.response.headers['Content-Type'] = 'application/json'
 		self.response.out.write(json.dumps(array))
 	
 	# When the game is over, route to new screen. Eventually will contain stats,etc..
 	def gameOver(self):
-		self.render('gameover.html')
+		params = {}
+		params['score'] = str(self.request.cookies.get('score'))
+		params['total'] = str(self.request.cookies.get('total'))
+		params['clist'] = str(self.request.cookies.get('correct_list')).replace('-',',').replace('_',' ')
+		params['iclist'] = str(self.request.cookies.get('incorrect_list')).replace('-',',').replace('_',' ')
+		self.render('gameover.html',params=params)
 		
 #For adding new points. Eventually will be protected (either non-public or requiring verification before adding to DB)
 class NewPointHandler(AppHandler):
@@ -124,11 +128,24 @@ class NewPointHandler(AppHandler):
 			if mc:
 				mc.append(newpt)
 				memcache.set("barlist",mc)
+			else:
+				barlist = getAllBars(self)
+				barlist.append(name)
+				memcache.set("barlist",barlist)
 		self.response.headers['Content-Type'] = 'application/json'
 		output = {"ok":"yeah"}
 		self.response.out.write(json.dumps(output))
-		
+
+def getAllBars(self):
+	allbars = Place.all().fetch(1000)
+	allbars = list(allbars)
+	mc = []
+	for bar in allbars:
+		mc.append(bar.name)
+	return mc		
 		
 class Place(db.Model):
 	location = db.GeoPtProperty(required=True)
 	name = db.StringProperty(required=True)
+	miss = db.IntegerProperty(default=0)
+	connect = db.IntegerProperty(default=0)
