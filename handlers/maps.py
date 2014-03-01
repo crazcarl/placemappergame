@@ -17,7 +17,6 @@ class MapHandler(AppHandler):
 		self.response.headers.add_header('Set-Cookie', '%s=;' % ('incorrect_list'))
 	
 	# AJAX helper function for returning messages of pass/fail.
-	# kind of useless right now. May eliminate or add more useful features.
 	def post(self):
 		distance = int(float(self.request.get('distance')))
 		barname = self.request.get('barname')
@@ -37,14 +36,11 @@ class MapHandler(AppHandler):
 		if not bar:
 			bar = Place.all().filter('name =',barname).get()
 		# Check user answer
-		if not distance or distance > 100:
-			array['correct'] = "False"
-			#TODO: log stats here
+		if distance > 100:
 			bar.miss += 1
 		else:
 			array['correct'] = "True"
 			score = int(score) + 1
-			#TODO: and log stats here
 			bar.connect += 1
 		memcache.set(barname,bar)
 		bar.put()
