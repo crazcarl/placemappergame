@@ -14,7 +14,11 @@
       src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDhcFl3Kw3amhvtaY9fzr9BiyUu6YPfqc0&sensor=false&libraries=geometry">
     </script>
 	<script src="/js/maps.js"></script>
-	<script> var markers = [];
+	<script> 
+	var markers = [];
+	var resultLine;
+	var resultMarker;
+	
 var map;
 function initialize() {
 
@@ -61,6 +65,9 @@ function initialize() {
 	function setAllMap(map) {
 	  for (var i = 0; i < markers.length; i++) {
 		markers[i].setMap(map);
+		//also remove result line and marker
+		if (resultLine) {resultLine.setMap(null)};
+		if (resultMarker) {resultMarker.setMap(null)};
 	  }
 	}
 	// Removes the markers from the map, but keeps them in the array.

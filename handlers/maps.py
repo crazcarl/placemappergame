@@ -15,6 +15,7 @@ class MapHandler(AppHandler):
 		self.response.headers.add_header('Set-Cookie', '%s=%s' % ('total',0))
 		self.response.headers.add_header('Set-Cookie', '%s=;' % ('correct_list'))
 		self.response.headers.add_header('Set-Cookie', '%s=;' % ('incorrect_list'))
+	
 	# AJAX helper function for returning messages of pass/fail.
 	# kind of useless right now. May eliminate or add more useful features.
 	def post(self):
@@ -30,14 +31,23 @@ class MapHandler(AppHandler):
 		# Validate it
 		if not self.valid_cookie(score,total):
 			pass
+		
+		# Get bar's Place object (for stats tracking)
+		bar = memcache.get(barname)
+		if not bar:
+			bar = Place.all().filter('name =',barname).get()
 		# Check user answer
 		if not distance or distance > 100:
 			array['correct'] = "False"
 			#TODO: log stats here
+			bar.miss += 1
 		else:
 			array['correct'] = "True"
 			score = int(score) + 1
 			#TODO: and log stats here
+			bar.connect += 1
+		memcache.set(barname,bar)
+		bar.put()
 		total = int(total) + 1
 		array['score'] = [str(score),str(total)]
 		# Set new val
@@ -105,10 +115,24 @@ class MapHandler(AppHandler):
 	# When the game is over, route to new screen. Eventually will contain stats,etc..
 	def gameOver(self):
 		params = {}
+		# User's Results
 		params['score'] = str(self.request.cookies.get('score'))
 		params['total'] = str(self.request.cookies.get('total'))
 		params['clist'] = str(self.request.cookies.get('correct_list')).replace('-',',').replace('_',' ')
 		params['iclist'] = str(self.request.cookies.get('incorrect_list')).replace('-',',').replace('_',' ')
+		
+		# Overall Results
+		barlist = memcache.get('barlist')
+		params['barstats'] = []
+		if not barlist:
+			barlist = getallbars(self)
+			memcache.set('barlist',barlist)
+		for barname in barlist:
+			bar = memcache.get('barname')
+			if not bar:
+				bar = Place.all().filter('name =',barname).get()
+				memcache.set('bar',bar)
+			params['barstats'].append(bar)
 		self.render('gameover.html',params=params)
 		
 #For adding new points. Eventually will be protected (either non-public or requiring verification before adding to DB)

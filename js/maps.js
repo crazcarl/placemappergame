@@ -17,6 +17,9 @@
 			}
 		 });
 		$('#submit').click(function(){
+			 // remove marker and line if user clicks submit without moving marker
+			 if (resultLine) {resultLine.setMap(null)};
+			 if (resultMarker) {resultMarker.setMap(null)};
 			 //1. Get name of bar and pass as json array to server
 			 var barname = {"barname":$("#barname").text()};
 			 //2. Get lat and long of bar for comparison
@@ -45,13 +48,13 @@
 				 data: data,
 				 dataType: 'json',
 				 success: function(data) {
-					evaluateResult(data)
+					evaluateResult(data,bar,location)
 				 }
 			 });
 			});
 		});
 		
-		function evaluateResult(data) {
+		function evaluateResult(data,bar,location) {
 			var correctDiv = document.getElementById('correct');
 			var spanTag = document.createElement('span');
 			if (data.correct == "True") {
@@ -64,6 +67,17 @@
 				spanTag.setAttribute('title',$("#barname").text());
 				var output = "<strong>You were off by " + data.distance + " meters.</strong>"
 				$('#distance').html(output);
+				//draw a line from marker to correct location
+				resultLine = new google.maps.Polyline({
+				 path: [bar,location]
+				 });
+				 resultMarker = new google.maps.Marker({
+						position: bar,
+						map: map,
+						icon: 'http://chart.apis.google.com/chart?chst=d_map_pin_letter&chld=%E2%80%A2%7C1dec36'
+					});
+				 resultLine.setMap(map);
+				 resultMarker.setMap(map);
 			};
 			correctDiv.appendChild(spanTag);
 			if (barslist['bars'].length > 0) {

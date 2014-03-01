@@ -8,7 +8,15 @@
 	<body>
 		<br><div>Your Score: {{params['score']}} out of {{params['total']}}</div><br>
 		<div>Correct: {{params['clist']}}</div><br>
-		<div>Incorrect: {{params['iclist']}}</div>
+		<div>Incorrect: {{params['iclist']}}</div><br>
+		<ul>
+		<strong>Overall Stats:</strong>
+		{% for bar in params['barstats'] %}
+		<li>
+			{{bar.name}} :  {{bar.connect}} correct and  {{bar.miss}}  incorrect.
+		</li>
+		{% endfor %}
+		</ul>
 	</body>
 	
 </html>
