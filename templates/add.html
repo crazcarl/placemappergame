@@ -59,7 +59,8 @@
 			 var lat = markers[0].getPosition().lat();
 			 var lang = markers[0].getPosition().lng();
 			 var bname = $('#barname').val();
-			 var data={"lat":lat,"lng":lang,"barname":bname};
+			 var pw = $('#pw').val();
+			 var data={"lat":lat,"lng":lang,"barname":bname,"pw":pw};
 			 $.ajax({
 				 type: "POST",
 				 data: data,
@@ -76,6 +77,10 @@
 	<div id="map-canvas"> </div>
 	
 	<form role="form">
+		<div class="form-group">
+			<label for="pw">Admin Password</label>
+			<input type="text" class="form-control" name="pw" placeholder="Enter Admin PW" id="pw">
+		</div>
 		<div class="form-group">
 			<label for="name">Bar Name</label>
 			<input type="text" class="form-control" name="barname" placeholder="Enter Bar Name" id="barname">

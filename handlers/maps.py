@@ -168,6 +168,9 @@ class NewPointHandler(AppHandler):
 		name = self.request.get("barname")
 		lat = self.request.get("lat")
 		lng = self.request.get("lng")
+		pw = self.request.get("pw")
+		if not pw or pw <> "asdf":
+			return None
 		if name and lat and lng:
 			newGeoPt = db.GeoPt(lat=lat,lon=lng)
 			newpt = Place(name=name,location=newGeoPt)
