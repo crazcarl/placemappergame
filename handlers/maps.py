@@ -5,13 +5,28 @@ from handlers.base import AppHandler
 from google.appengine.api import memcache
 import json
 from random import randint
+import hmac
 
+# TODO: update this to something else
+SECRET = "secret"
+
+
+# Function to help with cookie hashing
+def hash_str(s):
+	return hmac.new(SECRET, s).hexdigest()
+def check_secure_val(secure_val):
+	val = secure_val.split('|')[0]
+	if secure_val == make_secure_val(val):
+		return val
+def make_secure_val(val):
+	return '%s|%s' % (val, hash_str(str(val)))
 
 
 class MapHandler(AppHandler):
 	def get(self):
 		self.render("intro.html")
-		self.response.headers.add_header('Set-Cookie', '%s=%s' % ('score',0))
+		init_score = make_secure_val(0)
+		self.response.headers.add_header('Set-Cookie', '%s=%s' % ('score',init_score))
 		self.response.headers.add_header('Set-Cookie', '%s=%s' % ('total',0))
 		self.response.headers.add_header('Set-Cookie', '%s=;' % ('correct_list'))
 		self.response.headers.add_header('Set-Cookie', '%s=;' % ('incorrect_list'))
@@ -21,42 +36,54 @@ class MapHandler(AppHandler):
 		distance = int(float(self.request.get('distance')))
 		barname = self.request.get('barname')
 		array={'distance':distance}
+		
 		# Get Cookie Val
 		score = self.request.cookies.get('score')
 		total = self.request.cookies.get('total')
 		if not score or not total:
-			score = 0
+			score = make_secure_val(0)
 			total = 0
+		
 		# Validate it
-		if not self.valid_cookie(score,total):
-			pass
+		if not check_secure_val(score):
+			init_score = make_secure_val(0)
+			self.response.headers.add_header('Set-Cookie', '%s=%s' % ('score',init_score))
+		score = int(score.split('|')[0])
 		
 		# Get bar's Place object (for stats tracking)
 		bar = memcache.get(barname)
 		if not bar:
 			bar = Place.all().filter('name =',barname).get()
+		
 		# Check user answer
 		if distance > 100:
 			bar.miss += 1
+			array['correct'] = "False"
 		else:
 			array['correct'] = "True"
-			score = int(score) + 1
+			score = score + 1
 			bar.connect += 1
+		
+		# Update Place object with new stats
 		memcache.set(barname,bar)
 		bar.put()
+		
 		total = int(total) + 1
-		array['score'] = [str(score),str(total)]
-		# Set new val
+		
+		# Set new cookie
 		self.update_cookie(score,total,barname,array['correct'])
+		
+		# Pass Back Data to AJAX
+		array['score'] = [str(score),str(total)]
 		self.response.headers['Content-Type'] = 'application/json'
 		self.response.out.write(json.dumps(array))
-		
-	def valid_cookie(self,score,total):
-		return 1
 	
+	# Updates Cookie information after a submission
 	def update_cookie(self,score,total,barname,correct):
-		self.response.headers.add_header('Set-Cookie', '%s=%s' % ('score',str(score)))
+		self.response.headers.add_header('Set-Cookie', '%s=%s' % ('score',make_secure_val(score)))
 		self.response.headers.add_header('Set-Cookie', '%s=%s' % ('total',str(total)))
+		
+		# GAE Cookies can't have spaces or commas, so using - and _ instead (then will undo when using cookie)
 		barname = "_".join(barname.split())
 		if correct == 'True':
 			correct_list = str(self.request.cookies.get('correct_list'))
@@ -70,7 +97,7 @@ class MapHandler(AppHandler):
 			self.response.headers.add_header('Set-Cookie', '%s=%s' % ('incorrect_list',str(incorrect_list)))
 		
 	# AJAX helper function to return the lat/long for a bar based on the name
-	# This is used when computing the distance between the bar dn the marker placed
+	# This is used when computing the distance between the bar and the marker placed
 	# by the user.
 	def getBarLatLong(self):
 		name = self.request.get("barname");
@@ -112,7 +139,7 @@ class MapHandler(AppHandler):
 	def gameOver(self):
 		params = {}
 		# User's Results
-		params['score'] = str(self.request.cookies.get('score'))
+		params['score'] = str(self.request.cookies.get('score')).split('|')[0]
 		params['total'] = str(self.request.cookies.get('total'))
 		params['clist'] = str(self.request.cookies.get('correct_list')).replace('-',',').replace('_',' ')
 		params['iclist'] = str(self.request.cookies.get('incorrect_list')).replace('-',',').replace('_',' ')
