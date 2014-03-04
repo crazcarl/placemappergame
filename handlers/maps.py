@@ -21,16 +21,18 @@ def check_secure_val(secure_val):
 def make_secure_val(val):
 	return '%s|%s' % (val, hash_str(str(val)))
 
+def init_cookies(self):
+	init_score = make_secure_val(0)
+	self.response.headers.add_header('Set-Cookie', '%s=%s' % ('score',init_score))
+	self.response.headers.add_header('Set-Cookie', '%s=%s' % ('total',0))
+	self.response.headers.add_header('Set-Cookie', '%s=;' % ('correct_list'))
+	self.response.headers.add_header('Set-Cookie', '%s=;' % ('incorrect_list'))
 
 class MapHandler(AppHandler):
 	def get(self):
+		init_cookies(self)
 		self.render("intro.html")
-		init_score = make_secure_val(0)
-		self.response.headers.add_header('Set-Cookie', '%s=%s' % ('score',init_score))
-		self.response.headers.add_header('Set-Cookie', '%s=%s' % ('total',0))
-		self.response.headers.add_header('Set-Cookie', '%s=;' % ('correct_list'))
-		self.response.headers.add_header('Set-Cookie', '%s=;' % ('incorrect_list'))
-	
+		
 	# AJAX helper function for returning messages of pass/fail.
 	def post(self):
 		distance = int(float(self.request.get('distance')))
@@ -158,6 +160,54 @@ class MapHandler(AppHandler):
 			params['barstats'].append(bar)
 		self.render('gameover.html',params=params)
 		
+	# Add to the leaderboard
+	def post_leaderboard(self):
+		# Make sure cookie shows legit score (prevent cheating)
+		score = self.request.cookies.get('score')
+		total = self.request.cookies.get('total')
+		if not total or not check_secure_val(score):
+			# have some error message for them
+			self.redirect_to('leaderboard')
+			return None
+		
+		score = int(score.split('|')[0])
+		total = int(total)
+		name = self.request.get('name')
+		if not name:
+			# Just Return Leaderboard (no update)
+			self.redirect_to('leaderboard')
+			return None
+		
+		#reset cookies to prevent duplicate additions
+		init_cookies(self)
+		
+		# Create new LB object
+		lb = LeaderBoard(name=name,
+						 score=score,
+						 total=total)
+		
+		lb.put()
+		
+		# Handle caching
+		leaderboard = memcache.get('leaderboard')
+		if not leaderboard:
+			leaderboard = LeaderBoard.all().order('-score').fetch(25)
+		leaderboard = list(leaderboard)
+		
+		#TODO: Insert at correct location for sorting
+		leaderboard.append(lb)
+		memcache.set('leaderboard',leaderboard)
+		
+		self.redirect_to('leaderboard')
+		
+	# Display the leaderboard
+	def leaderboard(self):
+		leaderboard = memcache.get('leaderboard')
+		if not leaderboard:
+			leaderboard = LeaderBoard.all().order('-score').fetch(25)
+		leaderboard = list(leaderboard)
+		self.render('leaderboard.html',leaderboard=leaderboard)
+		
 #For adding new points. Eventually will be protected (either non-public or requiring verification before adding to DB)
 class NewPointHandler(AppHandler):
 	def get(self):
@@ -203,3 +253,9 @@ class Place(db.Model):
 	name = db.StringProperty(required=True)
 	miss = db.IntegerProperty(default=0)
 	connect = db.IntegerProperty(default=0)
+
+class LeaderBoard(db.Model):
+	name = db.StringProperty(required=True)
+	score = db.IntegerProperty(default=0)
+	total = db.IntegerProperty(default=0)
+	created = db.DateTimeProperty(auto_now_add = True)

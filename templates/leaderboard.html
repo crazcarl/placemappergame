@@ -1,0 +1,5 @@
+Here are your leaders!
+<br>
+{% for leader in leaderboard %}
+	<div>{{leader.name}} got a {{leader.score}} out of {{leader.total}}!!</div><br>
+{% endfor %}

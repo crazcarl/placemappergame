@@ -8,7 +8,7 @@
     <style type="text/css">
       html { height: 100% }
       body { height: 100%; width: 100%; margin: 0; padding: 0 }
-      #map-canvas { height: 90%; width:100% }
+      #map-canvas { height: 88%; width:100% }
     </style>
     <script type="text/javascript"
       src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDhcFl3Kw3amhvtaY9fzr9BiyUu6YPfqc0&sensor=false&libraries=geometry">
@@ -89,5 +89,15 @@ function initialize() {
 			<div id="score" class="col-md-1 navbar-right"></div>
 	</nav>
 	<div id="map-canvas"> </div>
+	<!-- Small modal -->
+	<button class="btn btn-primary" data-toggle="modal" data-target=".bs-example-modal-sm">Help</button>
+
+	<div class="modal fade bs-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+	  <div class="modal-dialog modal-sm">
+		<div class="modal-content">
+		  Testit
+		</div>
+	  </div>
+	</div>
   </body>
 </html>
