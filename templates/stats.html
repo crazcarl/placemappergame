@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+{% include 'header.html' %}
+	<body>
+
+		<div class="container">
+		{% include 'navbar.html' %}
+	
+
+		<div>
+		<strong><div>Overall Stats:</div></strong>
+		{% for bar in params['barstats'] %}
+		<div class="container col-md-6">
+			<h2>{{bar.name}}</h2> :  {{bar.connect}} correct and  {{bar.miss}}  incorrect.
+			<img src='http://api.chartspree.com/pie.svg?Correct={{bar.connect}}&Incorrect={{bar.miss}}' class="img-responsive" alt="Responsive image">
+		</div>
+		{% endfor %}
+		</div>
+		
+		</div>
+	</body>
+	
+</html>

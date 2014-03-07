@@ -1,25 +1,11 @@
 <!DOCTYPE html>
 <html>
-	<head>
-		<title>Place Mapper Game</title>
-		<script src="/js/jquery.js"></script>
-		<link href="/bootstrap/css/bootstrap.css" rel="stylesheet">
-		<script src="/bootstrap/js/bootstrap.js"></script>
-	</head>
+{% include 'header.html' %}
 	<body>
 
 		<div class="container">
 		
-			<div id="header" class="navbar navbar-default">
-				<strong><div class="nav navbar-nav navbar-header"><a href="/" class="navbar-brand">Place Mapper Game</a></div>
-				<!--If logged in, then don't display this -->
-				<div class="navbar-collapse collapse navbar-responsive-collapse">
-					<ul class="navbar-right">
-						<div class="nav navbar-nav"><li><a class="navbar-link" href="/leaderboard">Leaderboard</a></li></div>
-						<div class="nav navbar-nav"><li><a class="navbar-link" href="/contact">Contact</a></li></div>
-					</strong></ul>
-				</div>
-			</div>
+			{% include 'navbar.html' %}
 
 
 		{% if params['score'] != '0' or params['total'] != '0' %}
@@ -37,16 +23,6 @@
 			</div>
 		</form><br><br><br>
 		{% endif %}
-		
-		<ul>
-		<strong>Overall Stats:</strong>
-		{% for bar in params['barstats'] %}
-		<li>
-			{{bar.name}} :  {{bar.connect}} correct and  {{bar.miss}}  incorrect.
-		</li>
-		{% endfor %}
-		</ul>
-		</div>
 	</body>
 	
 </html>

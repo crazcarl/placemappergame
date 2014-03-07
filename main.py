@@ -20,5 +20,7 @@ app = WSGIApplication([
 	Route(r'/getbarlist', handler='handlers.maps.MapHandler',handler_method='getBarList'),
 	Route(r'/gameover', handler='handlers.maps.MapHandler',handler_method='gameOver'),
 	Route(r'/leaderboard', handler='handlers.maps.MapHandler', handler_method='leaderboard', name='leaderboard'),
-	Route(r'/post_leaderboard', handler='handlers.maps.MapHandler',handler_method='post_leaderboard')
+	Route(r'/post_leaderboard', handler='handlers.maps.MapHandler',handler_method='post_leaderboard'),
+	Route(r'/stats', handler='handlers.maps.MapHandler',handler_method='get_stats'),
+	Route(r'/contact',handler='handlers.maps.MapHandler',handler_method='contact')
 ], debug=True)

@@ -146,18 +146,6 @@ class MapHandler(AppHandler):
 		params['clist'] = str(self.request.cookies.get('correct_list')).replace('-',',').replace('_',' ')
 		params['iclist'] = str(self.request.cookies.get('incorrect_list')).replace('-',',').replace('_',' ')
 		
-		# Overall Results
-		barlist = memcache.get('barlist')
-		params['barstats'] = []
-		if not barlist:
-			barlist = getAllBars(self)
-			memcache.set('barlist',barlist)
-		for barname in barlist:
-			bar = memcache.get(barname)
-			if not bar:
-				bar = Place.all().filter('name =',barname).get()
-				memcache.set(barname,bar)
-			params['barstats'].append(bar)
 		self.render('gameover.html',params=params)
 		
 	# Add to the leaderboard
@@ -207,6 +195,23 @@ class MapHandler(AppHandler):
 			leaderboard = LeaderBoard.all().order('-score').fetch(25)
 		leaderboard = list(leaderboard)
 		self.render('leaderboard.html',leaderboard=leaderboard)
+	def get_stats(self):
+		# Overall Results
+		barlist = memcache.get('barlist')
+		params = {}
+		params['barstats'] = []
+		if not barlist:
+			barlist = getAllBars(self)
+			memcache.set('barlist',barlist)
+		for barname in barlist:
+			bar = memcache.get(barname)
+			if not bar:
+				bar = Place.all().filter('name =',barname).get()
+				memcache.set(barname,bar)
+			params['barstats'].append(bar)
+		self.render('stats.html',params=params)
+	def contact(self):
+		self.render('contact.html')
 		
 #For adding new points. Eventually will be protected (either non-public or requiring verification before adding to DB)
 class NewPointHandler(AppHandler):
