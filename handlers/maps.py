@@ -150,13 +150,13 @@ class MapHandler(AppHandler):
 		barlist = memcache.get('barlist')
 		params['barstats'] = []
 		if not barlist:
-			barlist = getallbars(self)
+			barlist = getAllBars(self)
 			memcache.set('barlist',barlist)
 		for barname in barlist:
-			bar = memcache.get('barname')
+			bar = memcache.get(barname)
 			if not bar:
 				bar = Place.all().filter('name =',barname).get()
-				memcache.set('bar',bar)
+				memcache.set(barname,bar)
 			params['barstats'].append(bar)
 		self.render('gameover.html',params=params)
 		
@@ -228,7 +228,7 @@ class NewPointHandler(AppHandler):
 			memcache.set(name,newpt)
 			mc = memcache.get("barlist")
 			if mc:
-				mc.append(newpt)
+				mc.append(name)
 				memcache.set("barlist",mc)
 			else:
 				barlist = getAllBars(self)

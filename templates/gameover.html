@@ -1,11 +1,28 @@
 <!DOCTYPE html>
 <html>
-  <head>
-	<script src="/js/jquery.js"></script>
-  	<link href="/bootstrap/css/bootstrap.css" rel="stylesheet">
-	<script src="/bootstrap/js/bootstrap.js"></script>
-
+	<head>
+		<title>Place Mapper Game</title>
+		<script src="/js/jquery.js"></script>
+		<link href="/bootstrap/css/bootstrap.css" rel="stylesheet">
+		<script src="/bootstrap/js/bootstrap.js"></script>
+	</head>
 	<body>
+
+		<div class="container">
+		
+			<div id="header" class="navbar navbar-default">
+				<strong><div class="nav navbar-nav navbar-header"><a href="/" class="navbar-brand">Place Mapper Game</a></div>
+				<!--If logged in, then don't display this -->
+				<div class="navbar-collapse collapse navbar-responsive-collapse">
+					<ul class="navbar-right">
+						<div class="nav navbar-nav"><li><a class="navbar-link" href="/leaderboard">Leaderboard</a></li></div>
+						<div class="nav navbar-nav"><li><a class="navbar-link" href="/contact">Contact</a></li></div>
+					</strong></ul>
+				</div>
+			</div>
+
+
+		{% if params['score'] != '0' or params['total'] != '0' %}
 		<br><div>Your Score: {{params['score']}} out of {{params['total']}}</div><br>
 		<div>Correct: {{params['clist']}}</div><br>
 		<div>Incorrect: {{params['iclist']}}</div><br>
@@ -16,9 +33,10 @@
 				<input type="text" class="form-control" name="name" placeholder="Enter Your Name" id="name">
 			</div>
 			<div class="form-group">
-				<button type="submit" class="btn btn-success col-md-1" id="submit">Submit Location</button>
+				<button type="submit" class="btn btn-success col-md-1" id="submit">Submit Name</button>
 			</div>
 		</form><br><br><br>
+		{% endif %}
 		
 		<ul>
 		<strong>Overall Stats:</strong>
@@ -28,6 +46,7 @@
 		</li>
 		{% endfor %}
 		</ul>
+		</div>
 	</body>
 	
 </html>

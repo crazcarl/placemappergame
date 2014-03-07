@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
+	<title>Place Mapper Game</title>
 	<script src="/js/jquery.js"></script>
   	<link href="/bootstrap/css/bootstrap.css" rel="stylesheet">
 	<script src="/bootstrap/js/bootstrap.js"></script>
@@ -89,13 +90,17 @@ function initialize() {
 			<div id="score" class="col-md-1 navbar-right"></div>
 	</nav>
 	<div id="map-canvas"> </div>
+	<button class="btn btn-primary" data-toggle="modal" data-target=".bs-help-modal-sm">Help</button>
+	<a class="btn btn-primary" href="/leaderboard">Leaderboard</a>
 	<!-- Small modal -->
-	<button class="btn btn-primary" data-toggle="modal" data-target=".bs-example-modal-sm">Help</button>
-
-	<div class="modal fade bs-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+	<div class="modal fade bs-help-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
 	  <div class="modal-dialog modal-sm">
 		<div class="modal-content">
-		  Testit
+		  <ol>
+			<li> Click on the map to place a marker where you think the bar is </li>
+			<li> Click the submit button </li>
+			<li> Check the new bar name and place a new marker </li>
+		  </ol>
 		</div>
 	  </div>
 	</div>
