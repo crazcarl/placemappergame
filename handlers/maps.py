@@ -180,11 +180,11 @@ class MapHandler(AppHandler):
 		leaderboard = memcache.get('leaderboard')
 		if not leaderboard:
 			leaderboard = LeaderBoard.all().order('-score').fetch(25)
-		leaderboard = list(leaderboard)
-		
-		#TODO: Insert at correct location for sorting
-		leaderboard.append(lb)
-		memcache.set('leaderboard',leaderboard)
+			memcache.set('leaderboard',list(leaderboard))
+		else:
+			#TODO: Insert at correct location for sorting
+			leaderboard.append(lb)
+			memcache.set('leaderboard',leaderboard)
 		
 		self.redirect_to('leaderboard')
 		
@@ -193,7 +193,8 @@ class MapHandler(AppHandler):
 		leaderboard = memcache.get('leaderboard')
 		if not leaderboard:
 			leaderboard = LeaderBoard.all().order('-score').fetch(25)
-		leaderboard = list(leaderboard)
+			leaderboard = list(leaderboard)
+			memcache.set('leaderboard',leaderboard)
 		self.render('leaderboard.html',leaderboard=leaderboard)
 	def get_stats(self):
 		# Overall Results
