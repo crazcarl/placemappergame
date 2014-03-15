@@ -17,6 +17,9 @@
 			}
 		 });
 		$('#submit').click(function(){
+			 // disable button
+			 var submit_button = document.getElementById('submit')
+			 submit_button.setAttribute('disabled',true)
 			 // remove marker and line if user clicks submit without moving marker
 			 if (resultLine) {resultLine.setMap(null)};
 			 if (resultMarker) {resultMarker.setMap(null)};
@@ -49,6 +52,7 @@
 				 dataType: 'json',
 				 success: function(data) {
 					evaluateResult(data,bar,location)
+					$('#submit').attr('disabled',false)
 				 }
 			 });
 			});

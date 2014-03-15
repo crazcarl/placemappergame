@@ -143,8 +143,8 @@ class MapHandler(AppHandler):
 		# User's Results
 		params['score'] = str(self.request.cookies.get('score')).split('|')[0]
 		params['total'] = str(self.request.cookies.get('total'))
-		params['clist'] = str(self.request.cookies.get('correct_list')).replace('-',',').replace('_',' ')
-		params['iclist'] = str(self.request.cookies.get('incorrect_list')).replace('-',',').replace('_',' ')
+		params['clist'] = str(self.request.cookies.get('correct_list')).replace('-',', ').replace('_',' ')
+		params['iclist'] = str(self.request.cookies.get('incorrect_list')).replace('-',', ').replace('_',' ')
 		
 		self.render('gameover.html',params=params)
 		
@@ -176,15 +176,20 @@ class MapHandler(AppHandler):
 		
 		lb.put()
 		
-		# Handle caching
 		leaderboard = memcache.get('leaderboard')
 		if not leaderboard:
 			leaderboard = LeaderBoard.all().order('-score').fetch(25)
-			memcache.set('leaderboard',list(leaderboard))
-		else:
-			#TODO: Insert at correct location for sorting
-			leaderboard.append(lb)
-			memcache.set('leaderboard',leaderboard)
+			leaderboard = list(leaderboard)
+		
+		if len(leaderboard) < 25 or (lb not in leaderboard and score > leaderboard[-1].score):
+			# find place to insert
+			for x in range(len(leaderboard)):
+				if score > leaderboard[x].score:
+					leaderboard.insert(x,lb)
+					break
+			if len(leaderboard) > 25:
+				leaderboard.pop()   #remove the now 26th place.	
+		memcache.set('leaderboard',leaderboard)
 		
 		self.redirect_to('leaderboard')
 		

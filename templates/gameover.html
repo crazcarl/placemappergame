@@ -9,9 +9,11 @@
 
 
 		{% if params['score'] != '0' or params['total'] != '0' %}
-		<br><div>Your Score: {{params['score']}} out of {{params['total']}}</div><br>
-		<div>Correct: {{params['clist']}}</div><br>
-		<div>Incorrect: {{params['iclist']}}</div><br>
+		<div class="panel panel-heading panel-default">
+			<h2><br><div>Your Score: {{params['score']}} out of {{params['total']}}</div><br></h2>
+			<h3><div class="alert alert-success">Correct: {{params['clist']}}</div><br></h3>
+			<h3><div class="alert alert-danger">Incorrect: {{params['iclist']}}</div><br></h3>
+		
 		
 		<form role="form" method="POST" action="/post_leaderboard">
 			<div class="form-group">
@@ -22,6 +24,7 @@
 				<button type="submit" class="btn btn-success col-md-1" id="submit">Submit Name</button>
 			</div>
 		</form><br><br><br>
+		</div>
 		{% endif %}
 	</body>
 	
