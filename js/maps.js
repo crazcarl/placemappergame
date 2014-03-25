@@ -17,9 +17,11 @@
 			}
 		 });
 		$('#submit').click(function(){
+			 if (markers.length == 0) {
+				alert("Click the map at the bar's location before hitting submit. Click help in the bottom left for more details");
+				return};  // No marker
 			 // disable button
-			 var submit_button = document.getElementById('submit')
-			 submit_button.setAttribute('disabled',true)
+			 $('#submit').attr('disabled',true)
 			 // remove marker and line if user clicks submit without moving marker
 			 if (resultLine) {resultLine.setMap(null)};
 			 if (resultMarker) {resultMarker.setMap(null)};

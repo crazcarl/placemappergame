@@ -222,7 +222,7 @@ class MapHandler(AppHandler):
 #For adding new points. Eventually will be protected (either non-public or requiring verification before adding to DB)
 class NewPointHandler(AppHandler):
 	def get(self):
-		places = Place.all().fetch(50)
+		places = Place.all().fetch(200)
 		places = list(places)
 		self.render("add.html",barlist=places)
 	def post(self):

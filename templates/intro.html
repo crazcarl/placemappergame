@@ -86,14 +86,17 @@ function initialize() {
 			<button type="button" class="btn btn-success col-md-1 navbar-left" id="submit">Submit Location</button>
 			<div id="correct" class="col-md-4"></div>
 			<strong><div class="navbar-brand navbar-justified" id="barname"></div></strong>
-			<div id="score" class="col-md-1 navbar-right navbar-brand"></div>
-			<div id="distance" class="col-md-2 navbar-right"></div>
+			<div id="score" class="col-md-2 navbar-right navbar-brand"></div>
+			
 	</nav>
 	<div id="map-canvas"> </div>
-	<div class="navbar navbar-fixed-bottom">
-		<button class="btn btn-success" data-toggle="modal" data-target=".bs-help-modal-sm">Help</button>
+	<div class="navbar navbar-default navbar-fixed-bottom">
+		<button class="btn btn-danger" data-toggle="modal" data-target=".bs-help-modal-sm">Help</button>
 		<a class="btn btn-success" href="/leaderboard">Leaderboard</a>
+		<a class="btn btn-success" href="/gameover">Submit Score</a>
+		<div id="distance" class="col-md-5 navbar-right navbar-brand"></div>
 	</div>
+	
 	<!-- Small modal -->
 	<div class="modal fade bs-help-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
 	  <div class="modal-dialog modal-sm">
