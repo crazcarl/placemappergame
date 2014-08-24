@@ -137,7 +137,7 @@ class MapHandler(AppHandler):
 		while places and len(names)<25:
 			which = randint(0,len(places)-1)
 			place = places.pop(which)
-			names.append(place)
+			names.append(place.name)
 		array = {"bars":names}
 		self.response.headers['Content-Type'] = 'application/json'
 		self.response.out.write(json.dumps(array))
@@ -193,7 +193,11 @@ class MapHandler(AppHandler):
 			leaderboard = LeaderBoard.all().order('-score').fetch(25)
 			leaderboard = list(leaderboard)
 		
-		if (len(leaderboard) < 25 and lb not in leaderboard) or (lb not in leaderboard and score > leaderboard[-1].score):
+		if lb in leaderboard:
+			self.redirect_to('leaderboard')
+			return None
+		
+		if (len(leaderboard) < 25) or (score > leaderboard[-1].score):
 			# find place to insert
 			for x in range(len(leaderboard)):
 				if score > leaderboard[x].score:
@@ -226,11 +230,11 @@ class MapHandler(AppHandler):
 			barlist = getAllBars(self)
 			memcache.set('barlist',barlist)
 		for barname in barlist:
-			bar = memcache.get(barname)
+			bar = memcache.get(barname.name)
 			if not bar:
-				bar = Place.all().filter('name =',barname).get()
-				memcache.set(barname,bar)
-			params['barstats'].append(bar)
+				bar = Place.all().filter('name =',barname.name).get()
+				memcache.set(barname.name,bar)
+			params['barstats'].append(bar.name)
 		self.render('stats.html',params=params)
 	def contact(self):
 		self.render('contact.html')
@@ -241,8 +245,6 @@ class MapHandler(AppHandler):
 		if not bars:
 			bars = Place.all().fetch(1000)
 			memcache.set('barlist',bars)
-		#TODO: sort based on name
-		#      add email field for suggestions and corrections
 		bars = sorted(bars, key=lambda bar: bar.name)
 		self.render('barlist.html',bars=bars)
 	def faq(self):
@@ -285,7 +287,7 @@ def getAllBars(self):
 	allbars = list(allbars)
 	mc = []
 	for bar in allbars:
-		mc.append(bar.name)
+		mc.append(bar)
 	return mc
 	
 
