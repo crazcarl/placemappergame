@@ -86,14 +86,21 @@ function initialize() {
 			<button type="button" class="btn btn-success col-md-1 navbar-left" id="submit">Submit Location</button>
 			<div id="correct" class="col-md-4"></div>
 			<strong><div class="navbar-brand navbar-justified" id="barname"></div></strong>
-			<div id="score" class="col-md-2 navbar-right navbar-brand"></div>
+			<div id="score" class="col-md-2 navbar-right navbar-brand">
+				<span id="goodGlyph"></span>
+				<span id="goodScore"></span>
+				<span id="divider"></span>
+				<span id="badGlyph"></span>
+				<span id="badScore"></span>
+			</div>
 			
 	</nav>
 	<div id="map-canvas"> </div>
 	<div class="navbar navbar-default navbar-fixed-bottom">
-		<button class="btn btn-danger" data-toggle="modal" data-target=".bs-help-modal-sm">Help</button>
+		<button class="btn btn-danger" data-toggle="modal" data-target="#helpModal">Help</button>
 		<a class="btn btn-success" href="/leaderboard">Leaderboard</a>
 		<a class="btn btn-success" href="/gameover">Submit Score</a>
+		<a class="btn btn-success navbar-right" href="/faq">About</a>
 		<div id="distance" class="col-md-5 navbar-right navbar-brand"></div>
 	</div>
 	
@@ -101,14 +108,34 @@ function initialize() {
 	<div class="modal fade bs-help-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
 	  <div class="modal-dialog modal-sm">
 		<div class="modal-content">
-		  <h1>So, you need some help?</h1>
+		  <h1>Here's what to do:</h1>
 		  <h2><ol>
 			<li> Click on the map to place a marker where the bar is </li>
 			<li> Click the submit button </li>
 			<li> Check the new bar name and place a new marker </li>
+			<li> Get all 25 right and claim a spot at the top of the leaderboard!</li>
 		  </ol></h2>
 		</div>
 	  </div>
 	</div>
+	
+<div class="modal fade" id="helpModal" tabindex="-1" role="dialog" aria-labelledby="helpModal" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">close</button>
+            <h4 class="modal-title" id="myModalLabel">Instructions</h4>
+            </div>
+            <div class="modal-body">
+                <ul>
+					<h4><li> Click on the map to place a marker where the bar is </li></h4>
+					<h4><li> Click the submit button </li></h4>
+					<h4><li> Check the new bar name and place a new marker </li></h4>
+					<h4><li> Get all 25 right and claim a spot at the top of the leaderboard!</li></h4>
+				</ul>
+            </div>
+    </div>
+  </div>
+</div>
   </body>
 </html>

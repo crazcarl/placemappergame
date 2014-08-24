@@ -7,13 +7,12 @@ import json
 from random import randint
 import hmac
 
-# TODO: update this to something else
-SECRET = "secret"
+import secret
 
 
 # Function to help with cookie hashing
 def hash_str(s):
-	return hmac.new(SECRET, s).hexdigest()
+	return hmac.new(secret.SECRET, s).hexdigest()
 def check_secure_val(secure_val):
 	val = secure_val.split('|')[0]
 	if secure_val == make_secure_val(val):
@@ -27,6 +26,7 @@ def init_cookies(self):
 	self.response.headers.add_header('Set-Cookie', '%s=%s' % ('total',0))
 	self.response.headers.add_header('Set-Cookie', '%s=;' % ('correct_list'))
 	self.response.headers.add_header('Set-Cookie', '%s=;' % ('incorrect_list'))
+	self.response.headers.add_header('Set-Cookie', '%s=%s' % ('distance',0))
 
 class MapHandler(AppHandler):
 	def get(self):
@@ -65,6 +65,9 @@ class MapHandler(AppHandler):
 			array['correct'] = "True"
 			score = score + 1
 			bar.connect += 1
+			
+		#TODO: do some calculations here for avg dist
+		bar.distance = distance
 		
 		# Update Place object with new stats
 		memcache.set(barname,bar)
@@ -73,7 +76,7 @@ class MapHandler(AppHandler):
 		total = int(total) + 1
 		
 		# Set new cookie
-		self.update_cookie(score,total,barname,array['correct'])
+		self.update_cookie(score,total,barname,array['correct'],distance)
 		
 		# Pass Back Data to AJAX
 		array['score'] = [str(score),str(total)]
@@ -81,9 +84,11 @@ class MapHandler(AppHandler):
 		self.response.out.write(json.dumps(array))
 	
 	# Updates Cookie information after a submission
-	def update_cookie(self,score,total,barname,correct):
+	def update_cookie(self,score,total,barname,correct,distance):
 		self.response.headers.add_header('Set-Cookie', '%s=%s' % ('score',make_secure_val(score)))
 		self.response.headers.add_header('Set-Cookie', '%s=%s' % ('total',str(total)))
+		total_distance = int(self.request.cookies.get('distance')) + distance
+		self.response.headers.add_header('Set-Cookie', '%s=%s' % ('distance',str(total_distance)))
 		
 		# GAE Cookies can't have spaces or commas, so using - and _ instead (then will undo when using cookie)
 		barname = "_".join(barname.split())
@@ -129,7 +134,7 @@ class MapHandler(AppHandler):
 		
 		# get a random list of places
 		names = []
-		while places:
+		while places and len(names)<25:
 			which = randint(0,len(places)-1)
 			place = places.pop(which)
 			names.append(place)
@@ -137,7 +142,7 @@ class MapHandler(AppHandler):
 		self.response.headers['Content-Type'] = 'application/json'
 		self.response.out.write(json.dumps(array))
 	
-	# When the game is over, route to new screen. Eventually will contain stats,etc..
+	# When the game is over, route to new screen.
 	def gameOver(self):
 		params = {}
 		# User's Results
@@ -145,6 +150,10 @@ class MapHandler(AppHandler):
 		params['total'] = str(self.request.cookies.get('total'))
 		params['clist'] = str(self.request.cookies.get('correct_list')).replace('-',', ').replace('_',' ')
 		params['iclist'] = str(self.request.cookies.get('incorrect_list')).replace('-',', ').replace('_',' ')
+		params['distance'] = str(self.request.cookies.get('distance'))
+		
+		if not params['score']:
+			params['error'] = 1
 		
 		self.render('gameover.html',params=params)
 		
@@ -153,6 +162,7 @@ class MapHandler(AppHandler):
 		# Make sure cookie shows legit score (prevent cheating)
 		score = self.request.cookies.get('score')
 		total = self.request.cookies.get('total')
+		distance = self.request.cookies.get('distance')
 		if not total or not check_secure_val(score):
 			# have some error message for them
 			self.redirect_to('leaderboard')
@@ -160,6 +170,7 @@ class MapHandler(AppHandler):
 		
 		score = int(score.split('|')[0])
 		total = int(total)
+		distance = int(distance)
 		name = self.request.get('name')
 		if not name:
 			# Just Return Leaderboard (no update)
@@ -172,7 +183,8 @@ class MapHandler(AppHandler):
 		# Create new LB object
 		lb = LeaderBoard(name=name,
 						 score=score,
-						 total=total)
+						 total=total,
+						 distance=distance)
 		
 		lb.put()
 		
@@ -181,7 +193,7 @@ class MapHandler(AppHandler):
 			leaderboard = LeaderBoard.all().order('-score').fetch(25)
 			leaderboard = list(leaderboard)
 		
-		if len(leaderboard) < 25 or (lb not in leaderboard and score > leaderboard[-1].score):
+		if (len(leaderboard) < 25 and lb not in leaderboard) or (lb not in leaderboard and score > leaderboard[-1].score):
 			# find place to insert
 			for x in range(len(leaderboard)):
 				if score > leaderboard[x].score:
@@ -203,6 +215,10 @@ class MapHandler(AppHandler):
 		self.render('leaderboard.html',leaderboard=leaderboard)
 	def get_stats(self):
 		# Overall Results
+		stats = ""
+		if not stats:
+			self.render('stats.html',params="")
+			return None
 		barlist = memcache.get('barlist')
 		params = {}
 		params['barstats'] = []
@@ -218,6 +234,19 @@ class MapHandler(AppHandler):
 		self.render('stats.html',params=params)
 	def contact(self):
 		self.render('contact.html')
+	def test(self):
+		self.render('test.html')
+	def bars(self):
+		bars = memcache.get('barlist')
+		if not bars:
+			bars = Place.all().fetch(1000)
+			memcache.set('barlist',bars)
+		#TODO: sort based on name
+		#      add email field for suggestions and corrections
+		bars = sorted(bars, key=lambda bar: bar.name)
+		self.render('barlist.html',bars=bars)
+	def faq(self):
+		self.render('FAQ.html')
 		
 #For adding new points. Eventually will be protected (either non-public or requiring verification before adding to DB)
 class NewPointHandler(AppHandler):
@@ -239,7 +268,7 @@ class NewPointHandler(AppHandler):
 			memcache.set(name,newpt)
 			mc = memcache.get("barlist")
 			if mc:
-				mc.append(name)
+				mc.append(newpt)
 				memcache.set("barlist",mc)
 			else:
 				barlist = getAllBars(self)
@@ -257,16 +286,19 @@ def getAllBars(self):
 	mc = []
 	for bar in allbars:
 		mc.append(bar.name)
-	return mc		
+	return mc
+	
+
 		
 class Place(db.Model):
 	location = db.GeoPtProperty(required=True)
 	name = db.StringProperty(required=True)
 	miss = db.IntegerProperty(default=0)
 	connect = db.IntegerProperty(default=0)
-
+	avg_distance = db.IntegerProperty(default=0)
 class LeaderBoard(db.Model):
 	name = db.StringProperty(required=True)
 	score = db.IntegerProperty(default=0)
 	total = db.IntegerProperty(default=0)
+	distance = db.IntegerProperty(default=0)
 	created = db.DateTimeProperty(auto_now_add = True)

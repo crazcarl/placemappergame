@@ -11,6 +11,7 @@
 		{% if params['score'] != '0' or params['total'] != '0' %}
 		<div class="panel panel-heading panel-default">
 			<h2><br><div>Your Score: {{params['score']}} out of {{params['total']}}</div><br></h2>
+			<h3><div>Cumulative distance from place: {{params['distance']}} meters</div><br></h3>
 			<h3><div class="alert alert-success">Correct: {{params['clist']}}</div><br></h3>
 			<h3><div class="alert alert-danger">Incorrect: {{params['iclist']}}</div><br></h3>
 		
@@ -25,6 +26,8 @@
 			</div>
 		</form><br><br><br>
 		</div>
+		{% else %}
+			<h2> No data to report. Head back to the game and give it a try!</h2>
 		{% endif %}
 	</body>
 	

@@ -20,13 +20,16 @@
 			 if (markers.length == 0) {
 				alert("Click the map at the bar's location before hitting submit. Click help in the bottom left for more details");
 				return};  // No marker
-			 // disable button
+			 // temporarily disable button to prevent duplicate submissions
 			 $('#submit').attr('disabled',true)
+			 
 			 // remove marker and line if user clicks submit without moving marker
 			 if (resultLine) {resultLine.setMap(null)};
 			 if (resultMarker) {resultMarker.setMap(null)};
+			 
 			 //1. Get name of bar and pass as json array to server
 			 var barname = {"barname":$("#barname").text()};
+			 
 			 //2. Get lat and long of bar for comparison
 			 var bar2 = $.ajax({
 				type: "GET",
@@ -41,12 +44,15 @@
 			 });
 			 // Create gmaps position object
 			 var bar= new google.maps.LatLng(b2lat,b2long);
+			 
 			 // Grab position of marker
 			 var location = markers[0].getPosition();
+			 
 			 //compare distance between marker and specified bar
 			 var distance=google.maps.geometry.spherical.computeDistanceBetween(bar, location);
 			 var data={"distance":distance,"barname":$("#barname").text()};
-			 // This creates the AJAX connection
+			 
+			 // Submit the distance
 			 $.ajax({
 				 type: "POST",
 				 url: "/",
@@ -61,16 +67,16 @@
 		});
 		
 		function evaluateResult(data,bar,location) {
-			var correctDiv = document.getElementById('correct');
-			var spanTag = document.createElement('span');
+			//var correctDiv = document.getElementById('correct');
+			//var spanTag = document.createElement('span');
 			if (data.correct == "True") {
-				spanTag.setAttribute('class','glyphicon glyphicon-ok');
-				spanTag.setAttribute('title',$("#barname").text());
+				//spanTag.setAttribute('class','glyphicon glyphicon-ok');
+				//spanTag.setAttribute('title',$("#barname").text());
 				$('#distance').html("<strong>You got it!</strong>")
 			}
 			else {
-				spanTag.setAttribute('class','glyphicon glyphicon-remove');
-				spanTag.setAttribute('title',$("#barname").text());
+				//spanTag.setAttribute('class','glyphicon glyphicon-remove');
+				//spanTag.setAttribute('title',$("#barname").text());
 				var output = "<strong>You were off by " + data.distance + " meters.</strong>"
 				$('#distance').html(output);
 				//draw a line from marker to correct location
@@ -85,13 +91,21 @@
 				 resultLine.setMap(map);
 				 resultMarker.setMap(map);
 			};
-			correctDiv.appendChild(spanTag);
+			//correctDiv.appendChild(spanTag);
 			if (barslist['bars'].length > 0) {
 				$('#barname').html(barslist['bars'].pop());
 			}
 			else {
 					window.location.href = "/gameover";
 			};
-			$('#score').html("Score: " + data['score'][0] + " / " + data['score'][1]);
+			//$('#score').html("Score: " + data['score'][0] + " / " + data['score'][1]);
+			gg = document.getElementById('goodGlyph');
+			bg = document.getElementById('badGlyph');
+			gg.setAttribute('class','glyphicon glyphicon-ok');
+			bg.setAttribute('class','glyphicon glyphicon-remove');
+			$('#divider').html('/');
+			$('#goodScore').html(data['score'][0]);
+			bs = data['score'][1] - data['score'][0]
+			$('#badScore').html(bs);
 		}
 	

@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+{% include 'header.html' %}
+	<body>
+
+		<div class="container">
+		{% include 'navbar.html' %}
+	
+		<div>
+<h2><span class="label label-info">Bar List</span></h2>
+	<ul class="list-group">
+		{% for bar in bars %}
+				<li class="list-group-item">{{bar.name}}</li>
+		{% endfor %}
+		</ul>
+		</div>
+		
+		</div>
+		
+	</body>
+	
+</html>
