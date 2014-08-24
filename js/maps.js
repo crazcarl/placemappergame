@@ -67,16 +67,10 @@
 		});
 		
 		function evaluateResult(data,bar,location) {
-			//var correctDiv = document.getElementById('correct');
-			//var spanTag = document.createElement('span');
 			if (data.correct == "True") {
-				//spanTag.setAttribute('class','glyphicon glyphicon-ok');
-				//spanTag.setAttribute('title',$("#barname").text());
 				$('#distance').html("<strong>You got it!</strong>")
 			}
 			else {
-				//spanTag.setAttribute('class','glyphicon glyphicon-remove');
-				//spanTag.setAttribute('title',$("#barname").text());
 				var output = "<strong>You were off by " + data.distance + " meters.</strong>"
 				$('#distance').html(output);
 				//draw a line from marker to correct location
@@ -91,14 +85,14 @@
 				 resultLine.setMap(map);
 				 resultMarker.setMap(map);
 			};
-			//correctDiv.appendChild(spanTag);
+
 			if (barslist['bars'].length > 0) {
 				$('#barname').html(barslist['bars'].pop());
 			}
 			else {
 					window.location.href = "/gameover";
 			};
-			//$('#score').html("Score: " + data['score'][0] + " / " + data['score'][1]);
+			// Update the score on the top right
 			gg = document.getElementById('goodGlyph');
 			bg = document.getElementById('badGlyph');
 			gg.setAttribute('class','glyphicon glyphicon-ok');
@@ -107,5 +101,10 @@
 			$('#goodScore').html(data['score'][0]);
 			bs = data['score'][1] - data['score'][0]
 			$('#badScore').html(bs);
+			
+			// Display message after 5 to submit score or keep going
+			if (parseInt(data['score'][1]) == 5) {
+				$('#gameModal').modal('show');
+			}
 		}
 	

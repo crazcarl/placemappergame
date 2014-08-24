@@ -83,7 +83,7 @@ function initialize() {
   </head>
   <body>
    <nav id="header" class="row navbar navbar-default" style="margin-right:0px; margin-left:0px; margin-bottom:0px">
-			<button type="button" class="btn btn-success col-md-1 navbar-left" id="submit">Submit Location</button>
+			<button type="button" class="btn btn-success navbar-left" id="submit">Submit Location</button>
 			<div id="correct" class="col-md-4"></div>
 			<strong><div class="navbar-brand navbar-justified" id="barname"></div></strong>
 			<div id="score" class="col-md-2 navbar-right navbar-brand">
@@ -104,21 +104,6 @@ function initialize() {
 		<div id="distance" class="col-md-5 navbar-right navbar-brand"></div>
 	</div>
 	
-	<!-- Small modal -->
-	<div class="modal fade bs-help-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
-	  <div class="modal-dialog modal-sm">
-		<div class="modal-content">
-		  <h1>Here's what to do:</h1>
-		  <h2><ol>
-			<li> Click on the map to place a marker where the bar is </li>
-			<li> Click the submit button </li>
-			<li> Check the new bar name and place a new marker </li>
-			<li> Get all 25 right and claim a spot at the top of the leaderboard!</li>
-		  </ol></h2>
-		</div>
-	  </div>
-	</div>
-	
 <div class="modal fade" id="helpModal" tabindex="-1" role="dialog" aria-labelledby="helpModal" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -133,6 +118,21 @@ function initialize() {
 					<h4><li> Check the new bar name and place a new marker </li></h4>
 					<h4><li> Get all 25 right and claim a spot at the top of the leaderboard!</li></h4>
 				</ul>
+            </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="gameModal" tabindex="-2" role="dialog" aria-labelledby="gameModal" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">close</button>
+            <h4 class="modal-title" id="myModalLabel" style="color:green">Place Mapper Game</h4>
+            </div>
+            <div class="modal-body">
+				<h4>Nice work, you made it to 5! You can submit your score at any time by clicking on the submit score button
+					on the bottom of the screen. Otherwise, keep going. It's best out of 25</h4>
             </div>
     </div>
   </div>

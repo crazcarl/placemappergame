@@ -65,11 +65,11 @@ class MapHandler(AppHandler):
 			array['correct'] = "True"
 			score = score + 1
 			bar.connect += 1
+			distance = 0   # distance shouldn't increase for successes
 			
-		#TODO: do some calculations here for avg dist
-		bar.distance = distance
-		
 		# Update Place object with new stats
+		count = bar.connect + bar.miss
+		bar.avg_distance = ((bar.avg_distance * count) + distance) / count+1
 		memcache.set(barname,bar)
 		bar.put()
 		
