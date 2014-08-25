@@ -6,7 +6,7 @@ from google.appengine.api import memcache
 import json
 from random import randint
 import hmac
-
+from google.appengine.api import mail
 import secret
 
 
@@ -177,35 +177,32 @@ class MapHandler(AppHandler):
 			self.redirect_to('leaderboard')
 			return None
 		
-		#reset cookies to prevent duplicate additions
+		# Reset cookies to prevent duplicate additions
 		init_cookies(self)
+		
+		# Grab current leaderboard
+		leaderboard = memcache.get('leaderboard')
+		if not leaderboard:
+			leaderboard = LeaderBoard.all().order('-score').fetch(25)
+			leaderboard = list(leaderboard)
 		
 		# Create new LB object
 		lb = LeaderBoard(name=name,
 						 score=score,
 						 total=total,
 						 distance=distance)
-		
 		lb.put()
 		
-		leaderboard = memcache.get('leaderboard')
-		if not leaderboard:
-			leaderboard = LeaderBoard.all().order('-score').fetch(25)
-			leaderboard = list(leaderboard)
-		
-		if lb in leaderboard:
-			self.redirect_to('leaderboard')
-			return None
-		
-		if (len(leaderboard) < 25) or (score > leaderboard[-1].score):
-			# find place to insert
-			for x in range(len(leaderboard)):
-				if score > leaderboard[x].score:
-					leaderboard.insert(x,lb)
-					break
-			if len(leaderboard) > 25:
-				leaderboard.pop()   #remove the now 26th place.	
+		# Add to already cachedleaderboard
+		# sort based on score/distance
+		# then remove if list longer than 25 entries
+		leaderboard.append(lb)
+		leaderboard = sorted(leaderboard, key=lambda x: (-x.score,x.distance))
+		if len(leaderboard) > 25:
+			leaderboard.pop()   #remove the now 26th place.	
 		memcache.set('leaderboard',leaderboard)
+
+		
 		
 		self.redirect_to('leaderboard')
 		
@@ -216,6 +213,7 @@ class MapHandler(AppHandler):
 			leaderboard = LeaderBoard.all().order('-score').fetch(25)
 			leaderboard = list(leaderboard)
 			memcache.set('leaderboard',leaderboard)
+		leaderboard = sorted(leaderboard, key=lambda x: (-x.score,x.distance))
 		self.render('leaderboard.html',leaderboard=leaderboard)
 	def get_stats(self):
 		# Overall Results
@@ -237,7 +235,10 @@ class MapHandler(AppHandler):
 			params['barstats'].append(bar.name)
 		self.render('stats.html',params=params)
 	def contact(self):
-		self.render('contact.html')
+		confirmation = self.request.get('confirmation')
+		if confirmation:
+			confirmation = "Email sent, thanks!"
+		self.render('contact.html',confirmation=confirmation)
 	def test(self):
 		self.render('test.html')
 	def bars(self):
@@ -249,6 +250,16 @@ class MapHandler(AppHandler):
 		self.render('barlist.html',bars=bars)
 	def faq(self):
 		self.render('FAQ.html')
+	def email(self):
+		email = self.request.get('email')
+		message = self.request.get('message')
+		mail.send_mail(sender="Place Mapper Game <crazcarl@gmail.com>",
+              to = "crazcarl@gmail.com",
+              subject = "Message from Place Mapper Game",
+              body = "Email: " + email +
+			  "\n" + "Message: " + message)
+		self.redirect_to('contact',confirmation=1)
+		
 		
 #For adding new points. Eventually will be protected (either non-public or requiring verification before adding to DB)
 class NewPointHandler(AppHandler):

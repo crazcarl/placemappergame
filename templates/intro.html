@@ -84,8 +84,7 @@ function initialize() {
   <body>
    <nav id="header" class="row navbar navbar-default" style="margin-right:0px; margin-left:0px; margin-bottom:0px">
 			<button type="button" class="btn btn-success navbar-left" id="submit">Submit Location</button>
-			<div id="correct" class="col-md-4"></div>
-			<strong><div class="navbar-brand navbar-justified" id="barname"></div></strong>
+			<strong><div class="navbar-brand navbar-left navbar-justified col-md-offset-4 col-sm-offset-2" id="barname"></div></strong>
 			<div id="score" class="col-md-2 navbar-right navbar-brand">
 				<span id="goodGlyph"></span>
 				<span id="goodScore"></span>
@@ -96,14 +95,40 @@ function initialize() {
 			
 	</nav>
 	<div id="map-canvas"> </div>
+
 	<div class="navbar navbar-default navbar-fixed-bottom">
-		<button class="btn btn-danger" data-toggle="modal" data-target="#helpModal">Help</button>
-		<a class="btn btn-success" href="/leaderboard">Leaderboard</a>
-		<a class="btn btn-success" href="/gameover">Submit Score</a>
+
+	<!-- For larger screens -->
+	<span class="hidden-xs">
+		<button class="btn btn-danger navbar-left" data-toggle="modal" data-target="#helpModal">Help</button>
+		<a class="btn btn-info navbar-left" href="/leaderboard">Leaderboard</a>
+		<a class="btn btn-success navbar-left" href="/gameover">Submit Score</a>
 		<a class="btn btn-success navbar-right" href="/faq">About</a>
-		<div id="distance" class="col-md-5 navbar-right navbar-brand"></div>
-	</div>
+	</span>
 	
+	
+	<span id="distance" class="col-md-3 navbar-brand navbar-right"></span>
+	
+    <!-- For smaller screens -->
+	<span class="dropdown visible-xs">
+        <a href="#" class="dropdown-toggle btn btn-danger navbar-left" data-toggle="dropdown">Links <span class="caret"></span></a>
+        <ul class="dropdown-menu" role="menu">
+            <li><button class="btn btn-danger" data-toggle="modal" data-target="#helpModal">Help</button></li>
+			<li class="divider"></li>
+            <li><a class="btn btn-info" href="/leaderboard">Leaderboard</a></li>
+			<li class="divider"></li>
+            <li><a class="btn btn-success" href="/gameover">Submit Score</a></li>
+			<li class="divider"></li>
+			<li><a class="btn btn-success" href="/faq">About</a></li>
+        </ul>
+    </span>
+		
+		
+
+	</div>
+
+
+
 <div class="modal fade" id="helpModal" tabindex="-1" role="dialog" aria-labelledby="helpModal" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
